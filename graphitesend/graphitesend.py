@@ -49,6 +49,16 @@ class GraphiteStructuredFormatter(object):
 
     and emits text appropriate to send to graphite's text socket.
     '''
+
+    cleaning_replacement_list = [
+        ('(', '_'),
+        (')', ''),
+        (' ', '_'),
+        ('-', '_'),
+        ('/', '_'),
+        ('\\', '_')
+    ]
+
     def __init__(self, prefix=None, group=None, system_name=None, suffix=None,
                  lowercase_metric_names=False, fqdn_squash=False, clean_metric_name=True):
 
@@ -84,9 +94,8 @@ class GraphiteStructuredFormatter(object):
         """
         if not self._clean_metric_name:
             return metric_name
-        metric_name = metric_name.replace('(', '_').replace(')', '')
-        metric_name = metric_name.replace(' ', '_').replace('-', '_')
-        metric_name = metric_name.replace('/', '_').replace('\\', '_')
+        for _from, _to in self.cleaning_replacement_list:
+            metric_name = metric_name.replace(_from, _to)
         return metric_name
 
     '''Format a metric, value, and timestamp for use on the carbon text socket.'''
