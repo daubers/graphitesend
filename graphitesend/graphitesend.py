@@ -52,45 +52,29 @@ class GraphiteStructuredFormatter(object):
     def __init__(self, prefix=None, group=None, system_name=None, suffix=None,
                  lowercase_metric_names=False, fqdn_squash=False, clean_metric_name=True):
 
-        # clean up the metric pathing
-        if prefix is None:
-            tmp_prefix = 'systems.'
-        elif prefix == '':
-            tmp_prefix = ''
-        else:
-            tmp_prefix = "%s." % prefix
+        prefix_parts = []
 
-        if system_name is None:
+        if prefix != '':
+            prefix = prefix or "systems"
+            prefix_parts.append(prefix)
+
+        if system_name != '':
+            system_name = system_name or platform.uname()[1]
             if fqdn_squash:
-                tmp_sname = '%s.' % platform.uname()[1].replace('.', '_')
-            else:
-                tmp_sname = '%s.' % platform.uname()[1]
-        elif system_name == '':
-            tmp_sname = ''
-        else:
-            tmp_sname = '%s.' % system_name
+                system_name = system_name.replace('.', '_')
+            prefix_parts.append(system_name)
 
-        if group is None:
-            tmp_group = ''
-        else:
-            tmp_group = '%s.' % group
+        if group is not None:
+            prefix_parts.append(group)
 
-        prefix = "%s%s%s" % (tmp_prefix, tmp_sname, tmp_group)
-
-        # remove double dots
-        if '..' in prefix:
-            prefix = prefix.replace('..', '.')
-
-        # Replace ' 'spaces with _
-        if ' ' in prefix:
-            prefix = prefix.replace(' ', '_')
-
-        if suffix:
-            self.suffix = suffix
-        else:
-            self.suffix = ""
-
+        prefix = '.'.join(prefix_parts)
+        prefix = prefix.replace('..', '.')  # remove double dots
+        prefix = prefix.replace(' ', '_')  # Replace ' 'spaces with _
+        if prefix:
+            prefix += '.'
         self.prefix = prefix
+
+        self.suffix = suffix or ""
         self.lowercase_metric_names = lowercase_metric_names
         self._clean_metric_name = clean_metric_name
 
