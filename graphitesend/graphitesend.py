@@ -101,9 +101,8 @@ class GraphiteStructuredFormatter(object):
     '''Format a metric, value, and timestamp for use on the carbon text socket.'''
     def __call__(self, metric_name, metric_value, timestamp=None):
         if timestamp is None:
-            timestamp = int(time.time())
-        else:
-            timestamp = int(timestamp)
+            timestamp = time.time()
+        timestamp = int(timestamp)
 
         if type(metric_value).__name__ in ['str', 'unicode']:
             metric_value = float(metric_value)
