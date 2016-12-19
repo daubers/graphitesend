@@ -377,12 +377,18 @@ class GraphiteClient(object):
                 (self.addr, error)
             )
 
+    def _ascii_encode(self, message):
+        if type(message) == bytes:
+            return message.decode('ascii')
+        else:
+            return message.encode('ascii')
+
     def _send(self, message):
         """
         Given a message send it to the graphite server.
         """
 
-        self.socket.sendall(message.encode("ascii"))
+        self.socket.sendall(self._ascii_encode(message))
 
     def _send_and_reconnect(self, message):
         """Send _message_ to Graphite Server and attempt reconnect on failure.
@@ -394,12 +400,12 @@ class GraphiteClient(object):
         :raises socket.error: When the socket connection is no longer valid.
         """
         try:
-            self.socket.sendall(message.encode("ascii"))
+            self.socket.sendall(self._ascii_encode(message))
         except (AttributeError, socket.error):
             if not self.autoreconnect():
                 raise
             else:
-                self.socket.sendall(message.encode("ascii"))
+                self.socket.sendall(self._ascii_encode(message))
 
     def _presend(self, message):
         """
